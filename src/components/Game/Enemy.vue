@@ -1,5 +1,10 @@
 <template>
-  <div v-if="isAlive" :class="['enemy_' + index]">
+  <div v-if="isAlive" :class="[`enemy_${index}`]">
+    <div class="enemy_hp">
+      <div :style="life>=1 ? filledHpStyle : emptyHpStyle"></div>
+      <div :style="life>=2 ? filledHpStyle : emptyHpStyle"></div>
+      <div :style="life>=3 ? filledHpStyle : emptyHpStyle"></div>
+    </div>
     <div @click="onClickHead" class="enemy_head">
     </div>
     <div @click="onClickBody" class="enemy_body">
@@ -8,44 +13,55 @@
 </template>
 
 <script>
+import zombieImg from "../../assets/zombie.gif";
+
 export default {
-  name: 'Enemy',
+  name: "Enemy",
   props: {
     index: Number,
     increaseScore: Function,
     decreaseLife: Function,
     decreaseEnemy: Function,
-    random: Function,
+    random: Function
   },
-  data(){
+  data() {
     return {
       life: 3,
       isAlive: true,
-    }
+      filledHpStyle: {
+        //enemy hp bar
+        backgroundColor: "rgb(180, 55, 139)",
+        width: "33%"
+      },
+      emptyHpStyle: {
+        backgroundColor : 'transparent',
+        width: "33%"
+      }
+    };
   },
   methods: {
-    onClickHead: function () {
-      this.life = 0
+    onClickHead: function() {
+      this.life = 0;
     },
-    onClickBody: function () {
-      this.life -= 1
-    },
+    onClickBody: function() {
+      this.life -= 1;
+    }
   },
   watch: {
-    life: function(newVal){
-      if(newVal <= 0){
-        this.increaseScore()
-        this.isAlive = false
-        this.decreaseEnemy()
+    life: function(newVal) {
+      if (newVal <= 0) {
+        this.increaseScore();
+        this.isAlive = false;
+        this.decreaseEnemy();
       }
     }
   },
-  mounted () {
+  mounted() {
     const createdStyleTag = document.createElement("style");
     const index = this.index;
     const animationName = `enemy_ani${index}`;
-    const randomMs = this.random(7000, 50000)
-    
+    const randomMs = this.random(7000, 50000);
+
     createdStyleTag.textContent = `
       .enemy_${index} {
         position: absolute;
@@ -54,44 +70,61 @@ export default {
 
         width: 20px;
         height: 20px;
-        background-image: url(http://1.bp.blogspot.com/-EuESyz_GuoE/T09_BIntRaI/AAAAAAAACIg/teIvU4p_6JQ/s1600/Zombie.gif);
+        background-image: url(${zombieImg});
         background-size: cover;
         
-        z-index: ${50000-randomMs};
-        animation: ${animationName} ${randomMs/20}s;
+        z-index: ${50000 - randomMs};
+        animation: ${animationName} ${randomMs / 20}s;
       }
 
       @keyframes ${animationName} { 
         from { }
         to { width: 20000px; height: 20000px }
       }
-    `
-    document.body.appendChild(createdStyleTag)
+    `;
+    document.body.appendChild(createdStyleTag);
 
-    this[`enemy_timer_${index}`] = setTimeout(()=>{
-      if(this.isAlive){
-        this.decreaseLife()
-        this.isAlive = false
-        this.decreaseEnemy()
+    this[`enemy_timer_${index}`] = setTimeout(() => {
+      if (this.isAlive) {
+        this.decreaseLife();
+        this.isAlive = false;
+        this.decreaseEnemy();
       }
-    }, randomMs)
+    }, randomMs);
   },
-  beforeDestroy (){
-    clearTimeout(this[`enemy_timer_${this.index}`])
-  },
-}
+  beforeDestroy() {
+    clearTimeout(this[`enemy_timer_${this.index}`]);
+  }
+};
 </script>
 
 <style scoped>
+.enemy_hp {
+  display: flex;
+  width: 50%;
+  height: 4px;
+  margin-top: -4px;
+  margin-left: 18%;
+  /* align-items: center; */
+}
+
+.enemy_filled_hp {
+  background-color: rgb(180, 55, 139);
+}
+
+.enemy_empty_hp {
+  background-color: transparent;
+}
+
 .enemy_head {
   width: 100%;
   height: 40%;
-  // background-color: blue;
+  /* // background-color: blue; */
 }
 
 .enemy_body {
   width: 100%;
   height: 60%;
-  // background-color: gray;
+  /* // background-color: gray; */
 }
 </style>
