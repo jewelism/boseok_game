@@ -78,9 +78,9 @@ export default {
     },
     start: function() {
       this.status = true;
-      this.lifes = this.getRandomInt(2, 5);
+      this.lifes = this.getRandomInt(5, 10);
       this.score = 0;
-      this.totalEnemy = this.getRandomInt(15, 30);
+      this.totalEnemy = this.getRandomInt(40, 100);
       this.currentEnemy = this.totalEnemy;
     },
     setHighScore: function() {
