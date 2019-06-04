@@ -1,9 +1,8 @@
 <template>
-  <div v-if="isAlive" :class="[`enemy_${index}`]">
+  <div v-if="isAlive" ref="enemy" :class="`enemy_${index}`">
     <div class="enemy_hp">
-      <div :style="life>=1 ? filledHpStyle : emptyHpStyle"></div>
-      <div :style="life>=2 ? filledHpStyle : emptyHpStyle"></div>
-      <div :style="life>=3 ? filledHpStyle : emptyHpStyle"></div>
+      <div v-for="i in life" :style="filledHpStyle"></div>
+      <div v-for="i in FULL_LIFE-life" :style="emptyHpStyle"></div>
     </div>
     <div @click="onClickHead" class="enemy_head">
     </div>
@@ -13,56 +12,57 @@
 </template>
 
 <script>
-import zombieImg from "../../assets/zombie.gif";
+  import zombieImg from '../../assets/zombie.gif';
 
-export default {
-  name: "Enemy",
-  props: {
-    index: Number,
-    increaseScore: Function,
-    decreaseLife: Function,
-    decreaseEnemy: Function,
-    random: Function
-  },
-  data() {
-    return {
-      life: 3,
-      isAlive: true,
-      filledHpStyle: {
-        //enemy hp bar
-        backgroundColor: "rgb(180, 55, 139)",
-        width: "33%"
-      },
-      emptyHpStyle: {
-        backgroundColor : 'transparent',
-        width: "33%"
-      }
-    };
-  },
-  methods: {
-    onClickHead: function() {
-      this.life = 0;
+  const FULL_LIFE = 3;
+  export default {
+    name: 'Enemy',
+    props: {
+      index: Number,
+      increaseScore: Function,
+      decreaseLife: Function,
+      decreaseEnemy: Function,
+      random: Function
     },
-    onClickBody: function() {
-      this.life -= 1;
-    }
-  },
-  watch: {
-    life: function(newVal) {
-      if (newVal <= 0) {
-        this.increaseScore();
-        this.isAlive = false;
-        this.decreaseEnemy();
+    data() {
+      return {
+        FULL_LIFE,
+        life: FULL_LIFE,
+        isAlive: true,
+        filledHpStyle: {
+          backgroundColor: 'rgb(180, 55, 139)',
+          width: '33%'
+        },
+        emptyHpStyle: {
+          backgroundColor: 'transparent',
+          width: '33%'
+        }
+      };
+    },
+    methods: {
+      onClickHead() {
+        this.life = 0;
+      },
+      onClickBody() {
+        this.life -= 1;
       }
-    }
-  },
-  mounted() {
-    const createdStyleTag = document.createElement("style");
-    const index = this.index;
-    const animationName = `enemy_ani${index}`;
-    const randomMs = this.random(7000, 50000);
+    },
+    watch: {
+      life(newVal) {
+        if (newVal <= 0) {
+          this.increaseScore();
+          this.isAlive = false;
+          this.decreaseEnemy();
+        }
+      }
+    },
+    mounted() {
+      const styleTag = document.createElement("style");
+      const index = this.index;
+      const animationName = `enemy_ani${index}`;
+      const randomMs = this.random(7000, 50000);
 
-    createdStyleTag.textContent = `
+      styleTag.textContent = `
       .enemy_${index} {
         position: absolute;
         top: ${this.random(13, 73)}vh;
@@ -82,49 +82,49 @@ export default {
         to { width: 20000px; height: 20000px }
       }
     `;
-    document.body.appendChild(createdStyleTag);
+      this.$refs.enemy.appendChild(styleTag);
 
-    this[`enemy_timer_${index}`] = setTimeout(() => {
-      if (this.isAlive) {
-        this.decreaseLife();
-        this.isAlive = false;
-        this.decreaseEnemy();
-      }
-    }, randomMs);
-  },
-  beforeDestroy() {
-    clearTimeout(this[`enemy_timer_${this.index}`]);
-  }
-};
+      this[`enemy_timer_${index}`] = setTimeout(() => {
+        if (this.isAlive) {
+          this.decreaseLife();
+          this.isAlive = false;
+          this.decreaseEnemy();
+        }
+      }, randomMs);
+    },
+    beforeDestroy() {
+      clearTimeout(this[`enemy_timer_${this.index}`]);
+    }
+  };
 </script>
 
 <style scoped>
-.enemy_hp {
-  display: flex;
-  width: 50%;
-  height: 4px;
-  margin-top: -4px;
-  margin-left: 18%;
-  /* align-items: center; */
-}
+  .enemy_hp {
+    display: flex;
+    width: 50%;
+    height: 4px;
+    margin-top: -4px;
+    margin-left: 18%;
+    /* align-items: center; */
+  }
 
-.enemy_filled_hp {
-  background-color: rgb(180, 55, 139);
-}
+  .enemy_filled_hp {
+    background-color: rgb(180, 55, 139);
+  }
 
-.enemy_empty_hp {
-  background-color: transparent;
-}
+  .enemy_empty_hp {
+    background-color: transparent;
+  }
 
-.enemy_head {
-  width: 100%;
-  height: 40%;
-  /* // background-color: blue; */
-}
+  .enemy_head {
+    width: 100%;
+    height: 40%;
+    /* // background-color: blue; */
+  }
 
-.enemy_body {
-  width: 100%;
-  height: 60%;
-  /* // background-color: gray; */
-}
+  .enemy_body {
+    width: 100%;
+    height: 60%;
+    /* // background-color: gray; */
+  }
 </style>
